@@ -1,19 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateLawyerProfileDto } from './dto/create-lawyer-profile.dto';
 import { UpdateLawyerProfileDto } from './dto/update-lawyer-profile.dto';
+import { LawyerProfile } from './entities/lawyer-profile.entity';
 
 @Injectable()
 export class LawyerProfileService {
-  create(createLawyerProfileDto: CreateLawyerProfileDto) {
-    return 'This action adds a new lawyerProfile';
+  constructor(@InjectModel(LawyerProfile.name) private readonly lawyerProfileModel: Model<LawyerProfile>) {}
+ async create(createLawyerProfileDto: CreateLawyerProfileDto &{user:string}) {
+const lawyerProfile = new this.lawyerProfileModel(createLawyerProfileDto);
+return lawyerProfile.save();
   }
 
-  findAll() {
-    return `This action returns all lawyerProfile`;
+  async findAll() {
+    return await this.lawyerProfileModel.find().populate('user').exec();
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} lawyerProfile`;
+ async findOne(id: number) {
+    return  await this.lawyerProfileModel.findById(id).populate('user').exec();
   }
 
   update(id: number, updateLawyerProfileDto: UpdateLawyerProfileDto) {
